@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import requests
+import json
 
 load_dotenv()
 
@@ -17,13 +18,13 @@ def get_weather(city):
 
 def get_country_info(country_code):
     url = f"https://api.restcountries.com/countries/v5/codes.alpha_2/{country_code}"
-    headers = {"Authorisation": f"Bearer {country_api_key}"}
+    headers = {"Authorization": f"Bearer {country_api_key}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         try:
             data = response.json()
             if data:
-                return data[0]   # return the first dict in the list
+                return data   # return the first dict in the list
         except ValueError:
             print("Response is not JSON:", response.text)
     else:
@@ -58,11 +59,12 @@ def run_tool():
 
     if country_data:
         population = country_data.get("population", 0)
-        region = country_data.get("region", "Unknown")
+        region = country_data.get("subregion", "Unknown")
         currencies = ", ".join(country_data.get("currencies", {}).keys())
         print(f"\n=== Country Info ===")
         print(f"Region      : {region}")
         print(f"Population  : {population:,}")
         print(f"Currency    : {currencies}")
+        print("\nRaw country data:", json.dumps(country_data, indent=4))
 
 run_tool()
