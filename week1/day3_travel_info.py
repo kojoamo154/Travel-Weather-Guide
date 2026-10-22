@@ -31,6 +31,11 @@ def get_country_info(country_code):
         print("Error:", response.status_code, response.text)
     return None
 
+def save_to_file(data, filename):
+    with open(filename, "w") as f:
+        json.dump(data, f, indent=2)
+    print(f"Data saved to {filename}")
+
 def run_tool():
     print("\nTravel Weather Tool")
     print("---------------------")
@@ -59,12 +64,22 @@ def run_tool():
 
     if country_data:
         population = country_data.get("population", 0)
-        region = country_data.get("subregion", "Unknown")
-        currencies = ", ".join(country_data.get("currencies", {}).keys())
+        region = country_data.get('subregion', "Unknown")
+        
+        # Extract currencies properly
+        currencies_list = country_data.get('currencies', [])
+        if currencies_list:
+        # Get all currency names instead of just codes
+            currencies = [c.get('code') for c in currencies_list]
+        else:
+            currencies = "Unknown"
+
         print(f"\n=== Country Info ===")
         print(f"Region      : {region}")
         print(f"Population  : {population:,}")
         print(f"Currency    : {currencies}")
-        print("\nRaw country data:", json.dumps(country_data, indent=4))
+    
+    if weather_data:
+        save_to_file(weather_data, f"{city.lower()}_weather.json")
 
 run_tool()
